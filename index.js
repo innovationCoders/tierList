@@ -43,6 +43,10 @@ rows.forEach(row => {
     row.addEventListener("dragleave", handleDragLeave)
 })
 
+itemsSection.addEventListener("drop", handleDrop)
+itemsSection.addEventListener("dragover", handleDragOver)
+itemsSection.addEventListener("dragleave", handleDragLeave)
+
 function handleDrop(event) {
     event.preventDefault()
     const { currentTarget, dataTransfer } = event;
@@ -51,21 +55,30 @@ function handleDrop(event) {
     if (sourceContainer && draggedElement) {
         sourceContainer.removeChild(draggedElement)
     }
-
+    
     if (draggedElement) {
         const src = dataTransfer.getData("text/plain")
         const imgElement = createItem(src)
         currentTarget.appendChild(imgElement)
     }
     currentTarget.classList.remove("drag-over")
+    currentTarget.querySelector('.drag-preview')?.remove()
 }
 function handleDragOver(event) {
     event.preventDefault()
-    const { currentTarget, dataTransfer } = event;
 
+    const { currentTarget, dataTransfer } = event;
     if(sourceContainer === currentTarget) return
-    
+        
     currentTarget.classList.add("drag-over")
+
+    const dragPreview= document.querySelector('.drag-preview')
+    if (draggedElement && !dragPreview){
+        const previewElement= draggedElement.cloneNode(true)
+        previewElement.classList.add('drag-preview')
+        currentTarget.appendChild(previewElement)
+        
+    }
     
 }
 function handleDragLeave(event) {
@@ -73,6 +86,7 @@ function handleDragLeave(event) {
 
     const { currentTarget } = event
     currentTarget.classList.remove("drag-over")
+    currentTarget.querySelector('.drag-preview')?.remove()
     
 }
 

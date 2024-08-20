@@ -114,6 +114,10 @@ body{
     object-fit: cover;
     background: #fff;
     cursor: grab;
+    & .drag-preview {
+        opacity: .5;
+        pointer-events: none;
+    }
 }
 
 

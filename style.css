@@ -45,6 +45,11 @@ body{
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid #111;
+    transition: all 3s ease;
+    &.drag-over {
+        background: #555;
+        scale: 1.01;
+    }
 }
 .label{
     cursor: pointer;
@@ -104,7 +109,11 @@ body{
 }
 
 .item-image{
-    
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    background: #fff;
+    cursor: grab;
 }
 
 

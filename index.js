@@ -1,162 +1,175 @@
-const $ = el => document.querySelector(el);
-const $$ = el => document.querySelectorAll(el);
+// * Arrow function for not repeating code "document.querySelector('')/document.querySelectorAll('')"
+const $ = el => document.querySelector(el)
+const $$ = el => document.querySelectorAll(el)
 
-const imageInput = $('#image-input');
-const itemsSection = $('#selector-items');
-const resetButton = $("#reset-tier-button");
-const saveButton= $('#save-tier-button');
+// * Select input element
+const imageInput = $('#image-input')
+// * Selector items container
+const itemsSection = $('#selector-items')
+// * Select resetButton
+const resetButton = $('#reset-tier-button')
+// * Select saveButton
+const saveButton = $('#save-tier-button')
 
+// * Function that adds images to web page
 function createItem(src) {
-    const imgElement = document.createElement('img');
-    imgElement.draggable = true;
-    imgElement.src = src;
-    imgElement.className = 'item-image';
-
-    imgElement.addEventListener("dragstart", handleDragStart)
-    imgElement.addEventListener("dragend", handleDragEnd)
-
-    itemsSection.appendChild(imgElement);
+    // * Create a image element
+    const imgElement = document.createElement('img')
+    // * Add draggable attribute to image
+    imgElement.draggable = true
+    // * Add src attribute to image
+    imgElement.src = src
+    // * Add class='item-image' to image
+    imgElement.className = 'item-image'
+    // * Add addEventListener dragstart and callback handleDragStart
+    imgElement.addEventListener('dragstart', handleDragStart)
+    // * Add addEventListener dragend and callback handleDragEnd
+    imgElement.addEventListener('dragend', handleDragEnd)
+    // * Place image into the html inside itemsSection
+    itemsSection.appendChild(imgElement)
+    // * Return imgElement to reuse in other places
     return imgElement
 }
-
+// * Function to use Browser api to create images from files
 function useFilesToCreateItems(files) {
+    // If files exits and 
     if (files && files.length > 0) {
         Array.from(files).forEach(file => {
+            const reader = new FileReader()
 
-            const reader = new FileReader();
-            
             reader.onload = (eventReader) => {
-                createItem(eventReader.target.result)  
-            };
-            reader.readAsDataURL(file);
+                console.log(eventReader.target.result);
+                createItem(eventReader.target.result)
+            }
+
+            reader.readAsDataURL(file)
         })
     }
 }
-
+// * Add addEventListener 'change' to imageInput
 imageInput.addEventListener('change', (event) => {
-    const {files } = event.target;
-    useFilesToCreateItems(files)
     
-});
-
-let draggedElement = null;
-let sourceContainer = null;
-
-const rows = $$(".tier .row")
-
-rows.forEach(row => {
-    row.addEventListener("drop", handleDrop)
-    row.addEventListener("dragover", handleDragOver)
-    row.addEventListener("dragleave", handleDragLeave)
+    const { files } = event.target
+    useFilesToCreateItems(files)
 })
 
-itemsSection.addEventListener("drop", handleDrop)
-itemsSection.addEventListener("dragover", handleDragOver)
-itemsSection.addEventListener("dragleave", handleDragLeave)
+let draggedElement = null
+let sourceContainer = null
 
-itemsSection.addEventListener("drop", handleDropFromDesktop)
-itemsSection.addEventListener("dragover", handleDropOverFromDesktop)
+const rows = $$('.tier .row')
 
-function handleDropOverFromDesktop(event) {
-    event.preventDefault();
-    const { currentTarget, dataTransfer } = event;
+rows.forEach(row => {
+    row.addEventListener('dragover', handleDragOver)
+    row.addEventListener('drop', handleDrop)
+    row.addEventListener('dragleave', handleDragLeave)
+})
 
-    if(dataTransfer.types.includes("Files")) {
-        currentTarget.classList.add("drag-files")
+itemsSection.addEventListener('dragover', handleDragOver)
+itemsSection.addEventListener('drop', handleDrop)
+itemsSection.addEventListener('dragleave', handleDragLeave)
+
+itemsSection.addEventListener('drop', handleDropFromDesktop)
+itemsSection.addEventListener('dragover', handleDragOverFromDesktop)
+
+function handleDragOverFromDesktop(event) {
+    event.preventDefault()
+
+    const { currentTarget, dataTransfer } = event
+
+    if (dataTransfer.types.includes('Files')) {
+        currentTarget.classList.add('drag-files')
     }
 }
 
 function handleDropFromDesktop(event) {
-    event.preventDefault();
-    const { currentTarget, dataTransfer } = event;
+    event.preventDefault()
+    const { currentTarget, dataTransfer } = event
 
-    if(dataTransfer.types.includes("Files")) {
-        currentTarget.classList.remove("drag-files")
-        const {files} = dataTransfer
+    if (dataTransfer.types.includes('Files')) {
+        currentTarget.classList.remove('drag-files')
+        const { files } = dataTransfer
         useFilesToCreateItems(files)
     }
 }
 
 function handleDrop(event) {
     event.preventDefault()
-    const { currentTarget, dataTransfer } = event;
-    console.log(dataTransfer.getData("text/plain"));
+
+    const { currentTarget, dataTransfer } = event
 
     if (sourceContainer && draggedElement) {
         sourceContainer.removeChild(draggedElement)
     }
-    
+
     if (draggedElement) {
-        const src = dataTransfer.getData("text/plain")
+        const src = dataTransfer.getData('text/plain')
         const imgElement = createItem(src)
         currentTarget.appendChild(imgElement)
     }
-    currentTarget.classList.remove("drag-over")
+
+    currentTarget.classList.remove('drag-over')
     currentTarget.querySelector('.drag-preview')?.remove()
 }
+
 function handleDragOver(event) {
     event.preventDefault()
 
-    const { currentTarget, dataTransfer } = event;
-    if(sourceContainer === currentTarget) return
-        
-    currentTarget.classList.add("drag-over")
+    const { currentTarget, dataTransfer } = event
+    if (sourceContainer === currentTarget) return
 
-    const dragPreview= document.querySelector('.drag-preview')
-    if (draggedElement && !dragPreview){
-        const previewElement= draggedElement.cloneNode(true)
+    currentTarget.classList.add('drag-over')
+
+    const dragPreview = document.querySelector('.drag-preview')
+
+    if (draggedElement && !dragPreview) {
+        const previewElement = draggedElement.cloneNode(true)
         previewElement.classList.add('drag-preview')
         currentTarget.appendChild(previewElement)
-        
     }
-    
 }
+
 function handleDragLeave(event) {
     event.preventDefault()
 
     const { currentTarget } = event
-    currentTarget.classList.remove("drag-over")
+    currentTarget.classList.remove('drag-over')
     currentTarget.querySelector('.drag-preview')?.remove()
-    
 }
-
 
 function handleDragStart(event) {
-    console.log("drag start", event.target);
     draggedElement = event.target
     sourceContainer = draggedElement.parentNode
-    event.dataTransfer.setData("text/plain", draggedElement.src)
-}
- 
-function handleDragEnd(event) {
-    console.log("drag end", event.target);
-    draggedElement = null;
-    sourceContainer = null;
-    
+    event.dataTransfer.setData('text/plain', draggedElement.src)
 }
 
-resetButton.addEventListener("click", () => {
-    const items = $$(".tier .item-image");
+function handleDragEnd(event) {
+    draggedElement = null
+    sourceContainer = null
+}
+
+resetButton.addEventListener('click', () => {
+    const items = $$('.tier .item-image')
     items.forEach(item => {
         item.remove()
         itemsSection.appendChild(item)
     })
 })
 
-saveButton.addEventListener('click', () =>{
-        const tierContainer= $('.tier');
-        const canvas=document.createElement('canvas');
-        const ctx= canvas.getContext('2d');
+saveButton.addEventListener('click', () => {
+    const tierContainer = $('.tier')
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
 
     import('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/+esm')
-    .then(({ default: html2canvas }) =>{
-        html2canvas(tierContainer).then(canvas =>{
-            ctx.drawImage(canvas, 0, 0);
-            const imgURL=canvas.toDataURL('impage/png')
-            const downloadLink= document.createElement('a')
-            downloadLink.download='tier.png'
-            downloadLink.href=imgURL
-            downloadLink.click()
+        .then(({ default: html2canvas }) => {
+            html2canvas(tierContainer).then(canvas => {
+                ctx.drawImage(canvas, 0, 0)
+                const imgURL = canvas.toDataURL('image/png')
+
+                const downloadLink = document.createElement('a')
+                downloadLink.download = 'tier.png'
+                downloadLink.href = imgURL
+                downloadLink.click()
+            })
         })
-    })
 })

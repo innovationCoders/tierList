@@ -30,28 +30,29 @@ function createItem(src) {
     // * Return imgElement to reuse in other places
     return imgElement
 }
-// * Function to use Browser api to create images from files
-function useFilesToCreateItems(files) {
-    // If files exits and 
-    if (files && files.length > 0) {
-        Array.from(files).forEach(file => {
-            const reader = new FileReader()
-
-            reader.onload = (eventReader) => {
-                console.log(eventReader.target.result);
-                createItem(eventReader.target.result)
-            }
-
-            reader.readAsDataURL(file)
-        })
-    }
-}
 // * Add addEventListener 'change' to imageInput
 imageInput.addEventListener('change', (event) => {
-    
+
     const { files } = event.target
     useFilesToCreateItems(files)
 })
+// * Function to use Browser api to create images from files
+function useFilesToCreateItems(files) {
+
+    if (files && files.length > 0) {
+        // * files is a Filelist, we need to convert to array to use forEach method
+        Array.from(files).forEach(file => {
+            // * Create a instance to FileReader
+            const reader = new FileReader()
+            // * Call readAsData URL async method
+            reader.readAsDataURL(file)
+            // * When call readAsDataURL throw onload event and use URL to call createItem
+            reader.onload = (eventReader) => {
+                createItem(eventReader.target.result)
+            }
+        })
+    }
+}
 
 let draggedElement = null
 let sourceContainer = null

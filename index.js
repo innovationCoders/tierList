@@ -53,61 +53,79 @@ function useFilesToCreateItems(files) {
         })
     }
 }
-
+// * Create two variables to value null. This variables represents draggedElement and sourceContainer
 let draggedElement = null
 let sourceContainer = null
 
+// * Create a variable to select all the elements with .tier and .row classes
 const rows = $$('.tier .row')
 
+// * Add three different addEventListeners to all elements in rows
 rows.forEach(row => {
     row.addEventListener('dragover', handleDragOver)
     row.addEventListener('drop', handleDrop)
     row.addEventListener('dragleave', handleDragLeave)
 })
 
+// * Add three different addEventListeners to all elements in itemsSection
 itemsSection.addEventListener('dragover', handleDragOver)
 itemsSection.addEventListener('drop', handleDrop)
 itemsSection.addEventListener('dragleave', handleDragLeave)
 
+// * Add addEventListeners to drag and drop from Desktop
 itemsSection.addEventListener('drop', handleDropFromDesktop)
 itemsSection.addEventListener('dragover', handleDragOverFromDesktop)
 
+//* Function to handle Drag Over From Desktop
 function handleDragOverFromDesktop(event) {
+    // * Cancell prevent default 
     event.preventDefault()
-
+    // * Use destructuring event for currentTarget, dataTransfer variable.
     const { currentTarget, dataTransfer } = event
-
+    //* when Files exist in dataTransfer adding .drag-files class to use in styles css
     if (dataTransfer.types.includes('Files')) {
         currentTarget.classList.add('drag-files')
     }
 }
 
 function handleDropFromDesktop(event) {
+    // * Cancell prevent default 
     event.preventDefault()
+    // * Use destructuring event for currentTarget, dataTransfer variable.
     const { currentTarget, dataTransfer } = event
-
     if (dataTransfer.types.includes('Files')) {
+        //* when Files exist in dataTransfer remove .drag-files class and place image into Selector-Items container
         currentTarget.classList.remove('drag-files')
         const { files } = dataTransfer
         useFilesToCreateItems(files)
     }
 }
 
+function handleDragStart(event) {
+    // * Asign value to draggedElement to event.target
+    draggedElement = event.target
+    // * Asign value to sourceContainer to draggedElement.parentNode
+    sourceContainer = draggedElement.parentNode
+    // * 
+    event.dataTransfer.setData('text/plain', draggedElement.src)
+    console.log('what is this',event.target);
+}
 function handleDrop(event) {
+    // * Cancel prevent default 
     event.preventDefault()
 
     const { currentTarget, dataTransfer } = event
-
+//* When drop element exist inside sourceContainer, remove draggedElement
     if (sourceContainer && draggedElement) {
         sourceContainer.removeChild(draggedElement)
     }
-
     if (draggedElement) {
+        // * Place imgElement to currenTarget with data inside in dataTransfer
         const src = dataTransfer.getData('text/plain')
         const imgElement = createItem(src)
         currentTarget.appendChild(imgElement)
     }
-
+    //* remove drag-over and drag-preview class
     currentTarget.classList.remove('drag-over')
     currentTarget.querySelector('.drag-preview')?.remove()
 }
@@ -137,13 +155,8 @@ function handleDragLeave(event) {
     currentTarget.querySelector('.drag-preview')?.remove()
 }
 
-function handleDragStart(event) {
-    draggedElement = event.target
-    sourceContainer = draggedElement.parentNode
-    event.dataTransfer.setData('text/plain', draggedElement.src)
-}
 
-function handleDragEnd(event) {
+function handleDragEnd() {
     draggedElement = null
     sourceContainer = null
 }

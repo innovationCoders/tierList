@@ -108,14 +108,14 @@ function handleDragStart(event) {
     sourceContainer = draggedElement.parentNode
     // * 
     event.dataTransfer.setData('text/plain', draggedElement.src)
-    console.log('what is this',event.target);
+    console.log('what is this', event.target);
 }
 function handleDrop(event) {
-    // * Cancel prevent default 
+    // * Cancel page refresh when event
     event.preventDefault()
 
     const { currentTarget, dataTransfer } = event
-//* When drop element exist inside sourceContainer, remove draggedElement
+    //* When drop element exist inside sourceContainer, remove draggedElement
     if (sourceContainer && draggedElement) {
         sourceContainer.removeChild(draggedElement)
     }
@@ -131,49 +131,65 @@ function handleDrop(event) {
 }
 
 function handleDragOver(event) {
+    // * Cancel page refresh when event
     event.preventDefault()
 
-    const { currentTarget, dataTransfer } = event
+    // * Use destructuring event for currentTarget variable. 
+    const { currentTarget } = event
+    //* when image is on the same container where I want to place the image. Cancel event
     if (sourceContainer === currentTarget) return
 
+    //* Adding class for hover effect on row
     currentTarget.classList.add('drag-over')
 
+    //* Select element with drag-preview class
     const dragPreview = document.querySelector('.drag-preview')
-
+    // * This code creates a preview image and prevents innecesary images repeat. Only execute when dragPreview is false and draggedElement is true.
     if (draggedElement && !dragPreview) {
+        //* Save a copy of cloneNode in previewElement
         const previewElement = draggedElement.cloneNode(true)
+        //* Add a drag-preview class to style previeElement
         previewElement.classList.add('drag-preview')
+        //* And place on the html
         currentTarget.appendChild(previewElement)
     }
 }
 
 function handleDragLeave(event) {
+    // * Cancel page refresh when event
     event.preventDefault()
-
+    // * when leave current target remove class drag-over and optional drag-review
     const { currentTarget } = event
     currentTarget.classList.remove('drag-over')
     currentTarget.querySelector('.drag-preview')?.remove()
 }
 
-
+// * When this function exectutes reset settings
 function handleDragEnd() {
     draggedElement = null
     sourceContainer = null
 }
 
+// * when clicking resetButtos remove items in rows and place into itemsSection to have a effect reset
 resetButton.addEventListener('click', () => {
     const items = $$('.tier .item-image')
     items.forEach(item => {
-        item.remove()
+        //* Here delete element in the DOM but element persist in memory to use later. 
+        item.remove() 
+        //* And here use element again to place in itemsSection.
         itemsSection.appendChild(item)
     })
 })
 
+//* when clicking saveButton Save TierList
 saveButton.addEventListener('click', () => {
+    //* Select tier container
     const tierContainer = $('.tier')
+    //* here create a html canvas with 2d context
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
 
+    // * Dinamic import to html2canvas dependency to capture a screenshot.
     import('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/+esm')
         .then(({ default: html2canvas }) => {
             html2canvas(tierContainer).then(canvas => {

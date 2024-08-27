@@ -175,7 +175,7 @@ resetButton.addEventListener('click', () => {
     const items = $$('.tier .item-image')
     items.forEach(item => {
         //* Here delete element in the DOM but element persist in memory to use later. 
-        item.remove() 
+        item.remove()
         //* And here use element again to place in itemsSection.
         itemsSection.appendChild(item)
     })
@@ -191,15 +191,23 @@ saveButton.addEventListener('click', () => {
 
     // * Dinamic import to html2canvas dependency to capture a screenshot.
     import('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/+esm')
+        //* Use html2Canvas to save tier container
         .then(({ default: html2canvas }) => {
-            html2canvas(tierContainer).then(canvas => {
-                ctx.drawImage(canvas, 0, 0)
-                const imgURL = canvas.toDataURL('image/png')
 
-                const downloadLink = document.createElement('a')
-                downloadLink.download = 'tier.png'
-                downloadLink.href = imgURL
-                downloadLink.click()
-            })
+            html2canvas(tierContainer)
+                .then(canvas => {
+                    // * Create a imge in canvas ctx
+                    ctx.drawImage(canvas, 0, 0)
+                    // * Convert canvas image into dataURL
+                    const imgURL = canvas.toDataURL('image/png')
+                    // * Create a alement anchor into DOM
+                    const downloadLink = document.createElement('a')
+                    //* Add download attribute to anchor for download when clicking
+                    downloadLink.download = 'MitierList.png'
+                    //* Link anchor with image URL
+                    downloadLink.href = imgURL
+                    //* Fake click to trigger download
+                    downloadLink.click()
+                })
         })
 })
